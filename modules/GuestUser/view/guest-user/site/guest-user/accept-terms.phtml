@@ -1,0 +1,34 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \GuestUser\Form\AcceptTermsForm $form
+ * @var string $text
+ * @var string $page
+ */
+
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'guest-user accept-terms');
+$form->prepare();
+?>
+
+<?php echo $this->messages(); ?>
+
+<?php echo $this->pageTitle($translate('Accept terms and conditions')); ?>
+
+<?php echo $text; ?>
+
+<?php echo $this->form()->openTag($form); ?>
+<div id="page-actions">
+    <button><?php echo $translate('Accept'); ?></button>
+</div>
+
+<?php echo $this->formCollection($form, false); ?>
+<?php $this->trigger('view.add.form.after'); ?>
+<?php echo $this->form()->closeTag(); ?>
+
+<?php if ($page): ?>
+<?php echo sprintf($translate('The terms and conditions can be read %shere%s.'),
+    '<a href="' . $this->url('site/page', ['page-slug' => $page], [], true) . '">', '</a>'); ?>
+<?php endif; ?>
+
+<?php $this->trigger('view.add.after'); ?>

@@ -1,0 +1,6 @@
+<h2><?php echo $this->escapeHtml($this->translate('Site under maintenance')); ?></h2>
+<?php if (empty($text)): ?>
+<p><?php echo $this->escapeHtml($this->translate('This site is down for maintenance. Please contact the site administrator for more information.')); ?></p>
+<?php else: ?>
+<?php echo $this->translate($text); ?>
+<?php endif; ?>

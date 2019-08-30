@@ -1,0 +1,19 @@
+// Typography
+$base-font-size: 16px;
+$base-line-height: 24px;
+
+$heading-font: "Bitter", serif;
+$body-font: "Lora", serif;
+
+// Spacing
+
+$spacing-s: .25 * $base-line-height;
+$spacing-m: .5 * $base-line-height;
+$spacing-l: $base-line-height;
+
+// Colors
+
+$light: rgba(0,0,0,.08);
+$gray: #eee;
+$bold: rgba(0,0,0,.15);
+$accent: #089494;

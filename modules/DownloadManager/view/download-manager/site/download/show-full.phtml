@@ -1,0 +1,114 @@
+<?php
+// This is a terminal view, so the theme layout is not echoed.
+// It is rendered only when there is a media (check is done in the controller).
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+
+// Copy from the main layout, without css and js, except the custom.
+$this->htmlElement('html')->setAttribute('lang', $this->lang());
+$this->headMeta()->setCharset('utf-8');
+$this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1');
+$this->headTitle($this->setting('installation_title', 'Omeka S'))->setSeparator(' · ');
+
+// Specific to this page.
+$this->htmlElement('body')->appendAttribute('class', 'item resource show document-view standalone');
+$content = $item->primaryMedia()->render();
+?>
+<?php echo $this->doctype(); ?>
+<?php echo $this->htmlElement('html'); ?>
+    <head>
+        <?php echo $this->headMeta(); ?>
+        <?php echo $this->headTitle(); ?>
+        <?php echo $this->headLink(); ?>
+        <?php echo $this->headStyle(); ?>
+        <style>
+        body.document-view.standalone {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .document-view.standalone .media-render {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            position: fixed;
+        }
+        .document-view.standalone .pdfjs,
+        .document-view.standalone .media-render > iframe {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #return-to-left,
+        #return-to-top {
+            position: fixed;
+            background: #000000;
+            opacity: 0.25;
+            display: none;
+            text-decoration: none;
+            -webkit-border-radius:100%;
+            -moz-border-radius: 100%;
+            border-radius: 100%;
+            -webkit-transition: all 0.3s linear;
+            -moz-transition: all 0.3s ease;
+            -ms-transition: all 0.3s ease;
+            -o-transition: all 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+            z-index: 999999999999999999;
+            border-radius: 100%;
+            text-align: center;
+            color: #ffffff;
+            line-height: 50px;
+            text-transform: uppercase;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        #return-to-top {
+            bottom: 15px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        #return-to-left {
+            bottom: 15px;
+            left: 10px;
+            width: 50px;
+            height: 50px;
+            z-index: 6000;
+        }
+        #return-to-left span,
+        #return-to-top span {
+            color: #ffffff;
+            margin: 0;
+            position: relative;
+            /*left: 18px;
+            top: 13px;*/
+            font-size: 25px;
+            -webkit-transition: all 0.3s ease;
+            -moz-transition: all 0.3s ease;
+            -ms-transition: all 0.3s ease;
+            -o-transition: all 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        #return-to-left:hover,
+        #return-to-top:hover {
+            opacity: 0.85;
+        }
+        #return-to-left.return-to {
+            display: block;
+        }
+        </style>
+    </head>
+    <?php echo $this->htmlElement('body'); ?>
+        <div class="document-viewer">
+            <?php echo $content; ?>
+        </div>
+        <a id="return-to-left" title="<?php echo $translate('Back to site'); ?>" class="return-to" href="<?php echo $escape($this->url('site/resource-id', ['site-slug' => $site->slug(), 'controller' => 'item', 'id' => $item->id()])); ?>">
+            <span class="fas fa-angle-left" aria-hidden="true">&lt;</span>
+        </a>
+        <?php echo $this->headScript(); ?>
+    </body>
+</html>

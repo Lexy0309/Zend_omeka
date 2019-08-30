@@ -1,0 +1,40 @@
+{
+    "name": "daniel-km/omeka-s-module-log",
+    "description": "Log (module for Omeka S)",
+    "type": "library",
+    "license": "CECILL-2.1",
+    "authors": [
+        {
+            "name": "Daniel Berthereau",
+            "email": "Daniel.packagist@Berthereau.net"
+        }
+    ],
+    "homepage": "https://github.com/Daniel-KM/Omeka-S-module-Log",
+    "support": {
+        "issues": "https://github.com/Daniel-KM/Omeka-S-module-Log/issues",
+        "forum": "https://forum.omeka.org/"
+    },
+    "keywords": [
+        "Omeka S",
+        "module",
+        "monitor",
+        "log",
+        "psr-3",
+        "logging",
+        "job",
+        "admin"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Log\\": "src/"
+        }
+    },
+    "require-dev": {
+        "biblibre/omeka-s-test-helper": "dev-master"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LogTest\\": "test/LogTest/"
+        }
+    }
+}

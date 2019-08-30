@@ -1,0 +1,15 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @string $siteSlug
+ */
+
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'guest-user auth');
+?>
+<h1><?php echo $translate('Authentication'); ?></h1>
+<?php echo $this->messages(); ?>
+<p class="login"><?php echo $this->hyperlink($translate('Login'), $this->url('site/guest-user', ['action' =>'login'], true)); ?></p>
+<p class="register"><?php echo $this->hyperlink($translate('Register'), $this->url('site/guest-user', ['action' =>'register'], true)); ?></p>
+<p class="forgot-password"><?php echo $this->hyperlink($translate('Forgot password?'), $this->url('site/guest-user', ['action' =>'forgot-password'], true)); ?></p>
+<?php $this->trigger('view.login.after'); ?>

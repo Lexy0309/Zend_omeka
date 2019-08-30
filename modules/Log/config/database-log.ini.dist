@@ -1,0 +1,9 @@
+; Sample of config of the database used for log. It should be saved
+; beside the default db config file of Omeka S as config/database-log.ini.
+username = ""
+password = ""
+database = ""
+host     = ""
+;port     =
+;unix_socket =
+;driver   =

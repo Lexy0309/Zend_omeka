@@ -1,0 +1,53 @@
+<?php
+$escape = $this->plugin('escapeHtml');
+$button = <<<'HTML'
+<button class="%s" title="%s" %s data-resource-id="%d">
+    <span class="fa %s"></span> %s
+</button>
+HTML;
+
+$mediaQualities = $media ? $this->mediaQualities($media, true) : [];
+// Don't display low quality bigger than original size.
+if (!empty($mediaQualities)) {
+    $originalSize = round($mediaQualities['original']['filesize'] / 1000);
+    foreach ($mediaQualities as $quality => $mediaQuality) {
+        if ($quality === 'original') {
+            continue;
+        }
+        if (round($mediaQuality['filesize'] / 1000) >= $originalSize) {
+            unset($mediaQualities[$quality]);
+        }
+    }
+}
+if (empty($media) || empty($mediaQualities)):
+    echo sprintf($button,
+        $class,
+        $escape($text),
+        $url ? sprintf('data-url="%s"', $escape($url)) : 'disabled="disabled"',
+        $resourceId,
+        $span,
+        $text);
+
+elseif (count($mediaQualities) == 1 || !empty($isHold)):
+    $mediaQuality = reset($mediaQualities);
+    echo sprintf($button,
+        $class,
+        $escape($text),
+        $url ? sprintf('data-url="%s"', $escape($url)) : 'disabled="disabled"',
+        $resourceId,
+        $span,
+        sprintf('%s (%s)', $text, $this->formatDigitalUnits($mediaQuality['filesize'])));
+
+else:
+    // TODO Create a unique button with a dropdown list.
+    foreach ($mediaQualities as $mediaQuality):
+        echo sprintf($button,
+            $class,
+            $escape($text),
+            $url ? sprintf('data-url="%s"', $escape($url . '?quality=' . $mediaQuality['quality'])) : 'disabled="disabled"',
+            $resourceId,
+            $span,
+            sprintf('%s (%s: %s)', $text, $mediaQuality['quality'], $this->formatDigitalUnits($mediaQuality['filesize'])));
+    endforeach;
+
+endif;

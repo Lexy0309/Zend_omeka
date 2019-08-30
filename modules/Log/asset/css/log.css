@@ -1,0 +1,42 @@
+@media screen {
+    .log .no-resources:before,
+    .logs .no-resources:before {
+        content:"";
+    }
+    .logs .sidebar.search .field {
+        background-color: #fff;
+        display: block;
+        position: inherit;
+    }
+    .logs .sidebar.search .field-meta {
+        width: auto;
+        max-width: 100%;
+    }
+    .logs .sidebar.search label,
+    .logs .sidebar.search .label,
+    .logs .sidebar.search .inputs {
+        width: 100%;
+        max-width: 100%;
+        position: inherit;
+    }
+    .logs .sidebar.search h3 {
+        position: initial;
+    }
+    .logs .sidebar.search label,
+    .logs .sidebar.search .label {
+        margin: 0 0 0 6px;
+        padding: 0;
+        position: initial;
+    }
+}
+.logs .webui-popover-current {
+    display: none;
+}
+.logs .webui-popover-title {
+    display: none;
+}
+.logs .log-job-param,
+.logs .log-job-log {
+    font-size: smaller;
+    font-style: italic;
+}

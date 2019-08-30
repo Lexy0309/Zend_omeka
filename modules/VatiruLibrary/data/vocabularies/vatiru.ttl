@@ -1,0 +1,59 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix o: <http://omeka.org/s/vocabs/o#> .
+@prefix vatiru: <https://vatiru.com/ns/vatiru/> .
+
+<https://vatiru.com/ns/vatiru/> a owl:Ontology ;
+    dcterms:title "Vatiru" ;
+    dcterms:description "Specific metadata for Vatiru." .
+
+vatiru:category a rdf:Property ;
+    rdfs:label "Category" ;
+    rdfs:comment "The main topic of the item." ;
+    rdfs:domain o:Item ;
+    vs:term_status "experimental" .
+
+vatiru:sourceRepository a rdf:Property ;
+    rdfs:label "Source repository" ;
+    rdfs:comment "The repository that is the source of the data." ;
+    rdfs:domain o:Item ;
+    vs:term_status "experimental" .
+
+vatiru:isExternal a rdf:Property ;
+    rdfs:label "Is external" ;
+    rdfs:comment "Specify if the item is managed externally or not." ;
+    rdfs:domain o:Item ;
+    vs:term_status "experimental" .
+
+vatiru:externalData a rdf:Property ;
+    rdfs:label "External data" ;
+    rdfs:comment "Store for external data." ;
+    rdfs:domain o:Resource ;
+    vs:term_status "experimental" .
+
+vatiru:publicationType a rdf:Property ;
+    rdfs:label "Publication type" ;
+    rdfs:comment "The main publication type of a resource used in Vatiru (for example “book”, “article”, “undefined”)." ;
+    rdfs:domain o:Resource ;
+    vs:term_status "experimental" .
+
+vatiru:resourcePriority a rdf:Property ;
+    rdfs:label "Resource Priority" ;
+    rdfs:comment "The priority of a resource used in Vatiru (for example “100” (book), “200” (article), “999” (undefined))." ;
+    rdfs:domain o:Resource ;
+    vs:term_status "experimental" .
+
+vatiru:userQuery a rdf:Property ;
+    rdfs:label "User query" ;
+    rdfs:comment "The query of a user." ;
+    rdfs:domain o:Resource ;
+    vs:term_status "experimental" .
+
+vatiru:externalSource a rdf:Property ;
+    rdfs:label "External source" ;
+    rdfs:comment "Url to the external source." ;
+    rdfs:domain o:Media ;
+    vs:term_status "experimental" .

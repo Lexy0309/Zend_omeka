@@ -1,0 +1,7 @@
+<?php
+$translate = $this->plugin('translate');
+?>
+<h3><?php echo $translate('This file is not available.'); ?></h3>
+<?php if (!empty($message)): ?>
+<?php echo $message; ?>
+<?php endif; ?>

@@ -1,0 +1,64 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->headLink()->appendStylesheet($this->assetUrl('css/download-manager-admin.css', 'DownloadManager'));
+$this->headScript()->appendFile($this->assetUrl('js/download-manager-admin.js', 'DownloadManager'));
+?>
+<style>
+.download-user .download-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+.download-user .download-expiration {
+    font-size: small;
+    font-style: italic;
+}
+</style>
+<div class="property download-user">
+    <h4><?php echo isset($label) ? $label : $translate('Holdings and downloads'); ?></h4>
+    <div class="value">
+<?php if (empty($downloads)): ?>
+    <div class="value no-value">
+        <?php echo $escape($translate('No holding or download.')); ?>
+    </div>
+<?php else: ?>
+    <?php $escape = $this->plugin('escapeHtml'); ?>
+    <ul class="download-list">
+    <?php foreach ($downloads as $download): ?>
+    <?php $resource = $download->resource(); ?>
+        <li class="value download">
+        <?php if ($download->isHeld()): ?>
+        <span class="download-status download-<?php echo $download->status(); ?> fa fa-fw fa-hand-o-up" title="<?php echo $translate('Held')?>"></span>
+        <?php elseif ($download->isDownloaded()): ?>
+        <span class="download-status download-<?php echo $download->status(); ?> fa fa-fw fa-download" title="<?php echo $translate('Downloaded')?>"></span>
+        <?php elseif ($download->isPast()): ?>
+        <span class="download-status download-<?php echo $download->status(); ?> fa fa-fw fa-clock-o" title="<?php echo $translate('Past downloaded')?>"></span>
+        <?php else: ?>
+        <?php // Nothing. ?>
+        <?php endif; ?>
+        <?php echo $resource->link($resource->displayTitle()); ?>
+        <?php if ($download->isDownloaded()): ?>
+             <?php if ($download->userIsAllowed('update')): ?>
+        <span class=""><a href="#"
+            class="download-release o-icon-release fa fa-fw fa-remove"
+            data-url="<?php echo $escape($download->url('release')); ?>"
+            title="<?php echo $escape($translate('Release')); ?>"></a></span>
+            <?php endif; ?>
+        <span class="download-expiration<?php echo $download->isExpiring() ? ' expired' : ''; ?>">
+        [<?php echo $escape($this->i18n()->dateFormat($download->expire())); ?>]
+        </span>
+        <?php elseif ($download->isHeld()): ?>
+        <?php echo sprintf(' (#%d)', $download->holdingRank()); ?>
+        <?php endif; ?>
+        <?php if ($downloadLog = $download->log()): ?>
+        <?php $lastLog = end($downloadLog); ?>
+        <span class="download-expiration<?php echo $download->isExpiring() ? ' expired' : ''; ?>">
+        <?php echo $escape(sprintf('[%s on %s]', $translate($lastLog['action']), $lastLog['date'])); ?>
+        </span>
+        <?php endif; ?>
+    </li>
+    <?php endforeach; ?>
+    </ul>
+<?php endif; ?>
+    </div>
+</div>

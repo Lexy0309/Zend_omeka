@@ -1,0 +1,213 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var array $result1
+ * @var \DownloadManager\Form\QuickSearchForm $formSearch
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'downloads dashboard browse');
+?>
+
+<?php echo $this->pageTitle('', 1, $translate('Downloads Dashboard')); ?>
+
+<?php $this->trigger('view.browse.before'); ?>
+
+<?php
+    $result1 = $result[0];
+    $result2 = $result[1];
+    $sum_user = 0;
+    $sum_item = 0;
+
+    
+    $color = array("#2ecc71", "#3498db",  "#95a5a6",  "#9b59b6",  "#f1c40f", "#e74c3c", "#34495e", "#878BB6", "#4ACAB4",  "#FFEA88");
+    
+    for($num = 0; $num <10; $num++){
+        if ($result1[$num]['max_user_total'] !=null) { $sum_user+=$result1[$num]['max_user_total'];}
+        if ($result1[$num]['max_item_total'] != null) {$sum_item+=$result1[$num]['max_item_total'];}
+        
+    }
+    for($num = 0 ; $num < 10; $num++){
+        $dataPoints[$num]['value']= $result1[$num]['max_user_total']/$sum_user*100;
+        $dataPoints[$num]['color'] = $color[$num];
+    }
+    for($num = 0 ; $num < 10; $num++){
+        $dataPoints1[$num]['value']= $result1[$num]['max_item_total']/$sum_item*100;
+        $dataPoints1[$num]['color'] = $color[$num];
+    }
+    for($num = 0 ; $num < 12; $num++){
+        $label2[$num] = $result1[11-$num]['year_month_date'];
+        $dataPoints2[$num]= $result1[11-$num]['trending_users']*1;
+    }
+    for($num = 0 ; $num < 12; $num++){
+        $label3[$num] = $result1[11-$num]['year_month_date'];
+        $dataPoints3[$num]= $result1[11-$num]['trending_items']*1;
+    }
+    for($num = 0; $num < 10 ; $num++){
+        $dataPoint4[$num]['label'] = "Trending";
+        $dataPoint4[$num]['fillColor'] = "rgba(172,194,132,0.2)";
+        $dataPoint4[$num]['strokeColor'] = "rgba(172,194,132,$num*10)";
+        $dataPoint4[$num]['pointColor'] = "rgba(172,194,132,$num*10)";
+        $dataPoint4[$num]['pointStrokeColor'] = "#000";
+        $dataPoint4[$num]['pointHighlightFill'] = "#fff";
+        $dataPoint4[$num]['pointHighlightStroke'] = "rgba(172,194,132,$num*10)";
+        for ($num1 = 0 ; $num1 <12 ; $num1 ++) {
+            
+            if(isset($result2[$num][11-$num1]['site_items'])){
+                $dataPoint4[$num]['data'][$num1]= $result2[$num][11-$num1]['site_items'];
+            }
+            else{
+                $dataPoint4[$num]['data'][$num1] = 0;
+            }
+    
+        }
+       
+    }
+?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <!-- <script src= "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script> -->
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+        <style>
+            .column {
+                width: 50% !important;
+                overflow: visible;
+                display: inline-block;
+            }
+            div[role="main"] {
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body onload="displayLineChart();">
+        <div class="box">
+            <h2> Trending stats about Top 10 sites </h2>
+            <canvas id="lineChart" height="450" width="800"></canvas>
+        </div>
+ 
+        <div style= "width:100%">
+            <div class = "column">        
+                <h3> Trending stats by users </h3>
+                <canvas id="trending_stats_users"  width ="600" height="400"></canvas>
+            </div>
+            <div class = "column">
+                <h3> Trending stats by items </h3>
+                <canvas id="trending_stats_items" width = "600" height="400"></canvas>
+            </div>
+        </div>
+        <div class= "row" >
+            <h2> Most readed Users </h2>
+            <canvas id="most_readed_users" width="600" height="400"></canvas>
+        
+ <?php if ($result1): ?>
+ 
+    <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
+    <thead>
+    <tr>
+    <th><?php echo $translate('User Name'); ?></th>
+    <th><?php echo $translate('User Email'); ?></th>
+    <th><?php echo $translate('Total'); ?></th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <?php foreach ($result1 as $row): ?>
+    <tr>
+        <td><?php if (isset($row['max_user_name'])) echo $row['max_user_name']; ?></td>
+        <td><?php if (isset($row['max_user_email'])) echo $row['max_user_email']; ?></td>
+        <td><?php if (isset($row['max_user_total'])) echo $row['max_user_total']; ?></td>
+    </tr>
+    <?php endforeach; ?>
+    </tbody>
+    </table>
+
+    <h2> Most readed Items </h2>
+    <canvas id="most_readed_items" width="600" height="400"></canvas>
+    <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
+        <thead>
+            <tr>
+                <th><?php echo $translate('Item'); ?></th>
+                <th><?php echo $translate('Total'); ?></th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($result1 as $row): ?>
+            <tr>
+                <td><?php if (isset($row['max_item_name'])) echo $row['max_item_name']; ?></td>
+                <td><?php if (isset($row['max_item_total'])) echo $row['max_item_total']; ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
+<script>
+    var trending_user_Data = {
+        labels :  <?php echo json_encode($label2); ?>,
+        datasets : [
+            {
+                fillColor : "rgba(172,194,132,0.4)",
+                strokeColor : "#ACC26D",
+                pointColor : "#fff",
+                pointStrokeColor : "#9DB86D",
+                data :  <?php echo json_encode($dataPoints2, JSON_NUMERIC_CHECK); ?>
+            }
+        ]
+    }
+    var line_Options = {
+        title: {
+            display: true,
+            text: 'Trending of users'
+        }
+    }
+    var trending_stats_users = document.getElementById('trending_stats_users').getContext('2d');
+    new Chart(trending_stats_users).Line(trending_user_Data, line_Options);
+
+    var trending_item_Data = {
+        title:{
+            text: "Trending Stats of Items"
+        },
+        labels :  <?php echo json_encode($label3); ?>,
+        datasets : [
+        {
+            fillColor : "rgba(172,194,132,0.4)",
+            strokeColor : "#ACC26D",
+            pointColor : "#fff",
+            pointStrokeColor : "#9DB86D",
+            data :  <?php echo json_encode($dataPoints3, JSON_NUMERIC_CHECK); ?>
+        }
+    ]
+    }
+    var trending_stats_items = document.getElementById('trending_stats_items').getContext('2d');
+    new Chart(trending_stats_items).Line(trending_item_Data);
+
+    var pieOptions = {
+            segmentShowStroke : false,
+            animateScale : true
+    }
+    var most_readed_users= document.getElementById("most_readed_users").getContext("2d");
+    new Chart(most_readed_users).Pie(<?php echo json_encode($dataPoints); ?>, pieOptions);
+
+    var most_readed_items= document.getElementById("most_readed_items").getContext("2d");
+    new Chart(most_readed_items).Pie(<?php echo json_encode($dataPoints1); ?>, pieOptions);
+    
+  function displayLineChart() {
+    var data = {
+        labels:  <?php echo json_encode($label3); ?>,
+        datasets: <?php echo json_encode($dataPoint4); ?>
+        
+    };
+    var ctx = document.getElementById("lineChart").getContext("2d");
+    var options = {
+        title: {
+            display: true,
+            text: 'Trending Stats of Top 10 Sites'
+        }
+     };
+    var lineChart = new Chart(ctx).Line(data, options);
+  }
+  </script>
+</html>
+

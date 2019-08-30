@@ -1,0 +1,22 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix download: <http://localhost/ontology/download#> .
+@prefix o: <http://omeka.org/s/vocabs/o#> .
+@prefix ns0: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+
+download:totalExemplars
+    a owl:ObjectProperty ;
+    rdfs:comment "The total of examplars of a document."@en ;
+    rdfs:domain o:Item ;
+    rdfs:label "total exemplars"@en ;
+    rdfs:range xsd:integer ;
+    ns0:term_status "experimental" .
+
+download:samplePages
+    a owl:ObjectProperty ;
+    rdfs:comment "The list of pages used to create a sample from a document."@en ;
+    rdfs:domain o:Item ;
+    rdfs:label "sample pages"@en ;
+    ns0:term_status "experimental" .

@@ -1,0 +1,242 @@
+<?php
+$translate = $this->plugin('translate');
+// If false, the link will use the download url of the primary file.
+$linkToViewer = true;
+$displayHelp = false;
+$freeDownloadMultipleTime = true;
+$retry = false;
+
+// The js is loaded in the case the resource becomes available, so the page may
+// be updated dynamically.
+$this->headScript()->appendFile($this->assetUrl('js/download-manager.js', 'DownloadManager'));
+
+$escape = $this->plugin('escapeHtml');
+$primaryMedia = empty($resource) ? null : $resource->primaryMedia();
+// Manage the module External if enabled.
+$hasMedia = $primaryMedia && $this->primaryOriginal($resource, false);
+
+$span = $linkToViewer ? 'fa-play' : 'fa-download';
+
+$url = $linkToViewer
+    ? $this->url('site/download-id', ['id' => $resource->id(), 'site-slug' => $site_slug])
+    : ($hasMedia ? $primaryMedia->originalUrl() : '');
+
+$buttonArgs = [
+    'media' => $primaryMedia,
+    'class' => 'download-manage download-downloadable download-link',
+    'text' => '',
+    'url' => $url,
+    'resourceId' => $resource_id,
+    'span' => $span,
+    'isHold' => false,
+];
+$buttonReleaseArgs = [];
+$buttonSampleArgs = [];
+
+$borrowed = $download && $download->isDownloaded() && $freeDownloadMultipleTime;
+
+// The resource is not determinable. A message indicate why.
+if (empty($result)):
+    $downloadStatus = 'download-error';
+    $messageExemplars = $message;
+
+    if ($is_identified):
+        if ($retry):
+            $buttonArgs['media'] = null;
+            $buttonArgs['class'] = 'download-manage download-retry download-link';
+            $buttonArgs['text'] = $translate('An error occurred: retry');
+            $buttonArgs['url'] = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $buttonArgs['span'] = 'fa-repeat';
+
+        else:
+            $buttonArgs['media'] = null;
+            $buttonArgs['class'] = 'download-manage download-error';
+            $buttonArgs['text'] = $translate('Resource not available');
+            $buttonArgs['url'] = false;
+            $buttonArgs['span'] = 'fa-exclamation-triangle';
+
+        endif;
+
+    else:
+        $buttonArgs['media'] = null;
+        $buttonArgs['class'] = 'download-manage download-login download-link';
+        $buttonArgs['text'] = $translate('Login to read or hold');
+        $buttonArgs['url'] = $this->urlLogin($this->url(null, [], true));
+        $buttonArgs['span'] = 'fa-user';
+
+    endif;
+
+// Nothing to download.
+elseif (!$hasMedia):
+    $downloadStatus = 'download-no-file';
+    $messageExemplars = $translate('This item has no file.');
+
+    $buttonArgs['media'] = null;
+    $buttonArgs['class'] = 'download-manage download-empty';
+    $buttonArgs['text'] = $translate('No file');
+    $buttonArgs['url'] = false;
+    $buttonArgs['span'] = 'fa-exclamation-triangle';
+
+// -1 means freely downloadable by everybody.
+elseif ($total_exemplars < 0):
+    $downloadStatus = 'download-free';
+    $messageExemplars = $translate('This item is readable freely.');
+
+    $buttonArgs['text'] = $translate('Freely readable');
+
+// 0 (default) means freely downloadable by authenticated users.
+elseif ($total_exemplars == 0):
+    $downloadStatus = 'download-free';
+    $messageExemplars = $translate('This item is readable freely by users.');
+
+    if ($is_identified):
+        if ($download && $download->isDownloaded()):
+            if ($freeDownloadMultipleTime):
+                $buttonArgs['text'] = $translate('Freely readable by users (already read)');
+            else:
+                $buttonArgs['media'] = null;
+                $buttonArgs['class'] = 'download-manage download-downloaded';
+                $buttonArgs['text'] = sprintf($translate('Already borrowed (expire %s)'), $download->expire()->format('Y-m-d H:i:s'));
+                $buttonArgs['url'] = false;
+                $buttonArgs['span'] = 'fa-exclamation-triangle';
+            endif;
+
+        else:
+            $buttonArgs['text'] = $translate('Freely readable by users');
+        endif;
+
+    else:
+        $buttonArgs['media'] = null;
+        $buttonArgs['class'] = 'download-manage download-login download-link';
+        $buttonArgs['text'] = $translate('Login to read');
+        $buttonArgs['url'] = $this->urlLogin($url);
+        $buttonArgs['span'] = 'fa-user';
+
+    endif;
+
+// A number means that there are copies of the item and they are limited.
+elseif ($total_exemplars > 0):
+    $downloadStatus = 'download-limited';
+    $messageExemplars = [];
+
+    if ($total_exemplars == 1):
+        $messageExemplars['available']['message'] = sprintf($translate('%d of %d copy available'), $total_available, $total_exemplars);
+    else:
+        $messageExemplars['available']['message']  = sprintf($translate('%d of %d copies available'), $total_available, $total_exemplars);
+    endif;
+
+    if ($total_holdings == 0):
+        $messageExemplars['waiting']['message'] = $translate('Nobody waiting per copy');
+    elseif ($total_holdings == 1):
+        $messageExemplars['waiting']['message'] = sprintf($translate('%d person waiting per copy'), $total_holdings);
+    else:
+        $messageExemplars['waiting']['message'] = sprintf($translate('%d people waiting per copy'), $total_holdings);
+    endif;
+
+    if ($is_identified):
+        if ($download && $download->isDownloaded()):
+            $buttonArgs['text'] = sprintf($translate('Already borrowed (expire %s)'), $download->expire()->format('Y-m-d H:i:s'));
+            if ($freeDownloadMultipleTime):
+                // Nothing to change.
+            else:
+                $buttonArgs['media'] = null;
+                $buttonArgs['class'] = 'download-manage download-downloaded';
+                $buttonArgs['url'] = false;
+                $buttonArgs['span'] = 'fa-exclamation-triangle';
+            endif;
+
+        elseif ($is_available):
+            $buttonArgs['text'] = $translate('Read');
+
+        else:
+            $url = $this->url('site/download-id', ['action' => 'hold', 'id' => $resource->id(), 'site-slug' => $site_slug]);
+            $buttonArgs['url'] = $url;
+            $buttonArgs['isHold'] = true;
+            if ($download && $download->isHeld()):
+                $buttonArgs['text'] = $translate('Remove my hold');
+                $buttonArgs['class'] = 'download-manage download-update download-remove';
+                $buttonArgs['span'] = 'fa-hand-o-down';
+
+            else:
+                $buttonArgs['text'] = $translate('Place a hold');
+                $buttonArgs['class'] = 'download-manage download-update download-held';
+                $buttonArgs['span'] = 'fa-hand-o-up';
+
+            endif;
+
+        endif;
+
+    else:
+        if ($is_available) {
+            $buttonArgs['text'] = $translate('Login to read');
+            $buttonArgs['url'] = $this->urlLogin($url);
+        } else {
+            $buttonArgs['text'] = $translate('Login to place a hold');
+            $buttonArgs['url'] = $this->urlLogin($this->url('site/download-id', ['action' => 'hold', 'id' => $resource->id(), 'site-slug' => $site_slug]));
+        }
+        $buttonArgs['class'] = 'download-manage download-login download-link';
+        $buttonArgs['span'] = 'fa-user';
+
+    endif;
+
+endif;
+
+if ($hasMedia):
+
+    if ($borrowed && $freeDownloadMultipleTime):
+        $url = $this->url('site/download-id', ['action' => 'release', 'id' => $resource->id(), 'site-slug' => $site_slug]);
+        $buttonReleaseArgs = [
+            'media' => null,
+            'class' => 'download-manage download-update download-release',
+            'text' => $translate('Release'),
+            'url' => $url,
+            'resourceId' => $resource_id,
+            'span' => 'fa-reply',
+        ];
+    endif;
+
+    $pages = trim($resource->value('download:samplePages', ['type' => 'literal', 'all' => false]));
+    if (!empty($pages)):
+        // Everybody can read a sample.
+        $url = $this->url('site/download-id', ['id' => $resource->id(), 'site-slug' => $site_slug], ['query' => ['sample' => 1]]);
+        $buttonSampleArgs = [
+            'media' => null,
+            'class' => 'download-manage download-downloadable download-link download-sample',
+            'text' => $translate('Read a sample'),
+            'url' => $url,
+            'resourceId' => $resource_id,
+            'span' => 'fa-eye',
+        ];
+    endif;
+
+endif;
+
+?>
+<div class="download-block">
+    <div class="<?php echo $downloadStatus; ?>">
+        <div class="download-exemplars">
+            <?php if (is_array($messageExemplars)): ?>
+            <span class="download-available">
+                <span class="fa fa-copy"></span>
+                <span><?php echo $messageExemplars['available']['message']; ?></span>
+            </span>
+            <span class="download-waiting">
+                <span class="fa fa-pause"></span>
+                <span><?php echo $messageExemplars['waiting']['message']; ?></span>
+            </span>
+            <?php else: ?>
+            <span><?php echo $messageExemplars; ?></span>
+            <?php endif; ?>
+            <?php if ($displayHelp): ?>
+            <span class="help">&quest;</span>
+            <?php endif; ?>
+        </div>
+        <?php echo $this->partial('common/availability-button', $buttonArgs); ?>
+        <?php if ($buttonReleaseArgs): ?>
+        <?php echo $this->partial('common/availability-button', $buttonReleaseArgs); ?>
+        <?php endif; ?>
+        <?php if ($buttonSampleArgs): ?>
+        <?php echo $this->partial('common/availability-button', $buttonSampleArgs); ?>
+        <?php endif; ?>
+    </div>
+</div>

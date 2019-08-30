@@ -1,0 +1,15 @@
+<?php
+$translate = $this->plugin('translate');
+$urlHelper = $this->plugin('url');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+?>
+<ul>
+    <li>
+        <?php $url = $urlHelper('site/download', ['action' => 'browse'], ['query' => ['status' => ['held', 'downloaded']]], true); ?>
+        <a href="<?php echo $escapeAttr($url); ?>"><?php echo $translate('Holdings'); ?></a>
+    </li>
+    <li>
+        <?php $url = $urlHelper('site/download', ['action' => 'browse'], ['query' => ['status' => ['past']]], true); ?>
+        <a href="<?php echo $escapeAttr($url); ?>"><?php echo $translate('Past holdings'); ?></a>
+    </li>
+</ul>

@@ -1,0 +1,42 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Entity\User $user
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->headLink()->prependStylesheet($this->assetUrl('css/user-bar.css', 'Omeka'));
+$this->headLink()->prependStylesheet('//fonts.googleapis.com/css?family=Source+Code+Pro|Lato:400,400italic,700,700italic');
+if (!isset($user)) $user = $this->identity();
+?>
+<div id="user-bar">
+<?php if ($user): ?>
+    <?php if ($this->userIsAllowed('Omeka\Controller\Admin\Index', 'index')): ?>
+    <div class="logo"><a href="<?php echo $this->url('admin'); ?>"><?php echo $this->setting('installation_title', 'Omeka S'); ?></a></div>
+    <span class="current-site">
+        <a href="<?php echo $site->adminUrl('show'); ?>"><?php echo $site->title(); ?></a>
+    </span>
+    <?php endif; ?>
+    <span class="user-id">
+    <?php
+    if ($user->getRole() === 'guest'):
+        $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'me', 'id' => $user->getId()]);
+    else:
+        $url = $this->url('admin/id', ['controller' => 'user', 'id' => $user->getId()]);
+    endif;
+    echo sprintf($translate('Signed in as %s'), '<a href="' . $url . '">' . $escape($user->getName()) . '</a>');
+    ?>
+    </span>
+    <?php
+    $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'logout'], ['query' => $this->params()->fromQuery() ?: []], true);
+    echo $this->hyperlink($translate('Logout'), $url, ['class' => 'logout']);
+    ?>
+<?php else: ?>
+    <?php
+    $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'login'], ['query' => $this->params()->fromQuery() ?: []], true);
+    echo $this->hyperlink($translate('Log in'), $url, ['class' => 'login']);
+    ?>
+<?php endif; ?>
+</div>

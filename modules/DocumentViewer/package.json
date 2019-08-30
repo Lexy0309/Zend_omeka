@@ -1,0 +1,38 @@
+{
+  "name": "omeka-s-module-document-viewer",
+  "version": "3.1.0",
+  "description": "Document Viewer (module for Omeka S)",
+  "main": "gulpfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Daniel-KM/Omeka-S-module-DocumentViewer"
+  },
+  "author": "Daniel Berthereau",
+  "license": "CECILL-2.1",
+  "bugs": {
+    "url": "https://github.com/Daniel-KM/Omeka-S-module-DocumentViewer/issues"
+  },
+  "homepage": "https://github.com/Daniel-KM/Omeka-S-module-DocumentViewer#readme",
+  "keywords": [
+    "Omeka S",
+    "Omeka S module",
+    "viewer",
+    "pdf"
+  ],
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "git+https://github.com/gulpjs/gulp.git#4.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^2.6.1",
+    "gulp-string-replace": "^0.4.0"
+  },
+  "dependencies": {
+    "pdf.js": "git+https://github.com/mozilla/pdf.js.git#v1.9.426"
+  }
+}

@@ -1,0 +1,57 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'users show');
+?>
+
+<?php echo $this->pageTitle($new['title'], 1, $translate('Sites')); ?>
+
+<div id="page-actions">
+        <a class="button" href="<?php echo $escape($this->url('admin/site/slug/action', ['action' => 'settings', 'site-slug' => $new['title']], 
+        true)); ?>"><?php echo $translate('Site Settings'); ?></a>
+</div>
+
+<?php $this->trigger('view.show.before'); ?>
+
+<div class="property">
+    <h4><?php echo $translate('Title'); ?></h4>
+    <div class="value">
+        <?php echo json_encode($new['title']); ?>
+    </div>
+</div>
+<div class="property">
+    <h4><?php echo $translate('Owner name'); ?></h4>
+    <div class="value">
+        <?php echo json_encode($new['owner_name']); ?>
+        <?php echo json_encode($new['owner_email']); ?>
+    </div>
+</div>
+<div class="property">
+    <h4><?php echo $translate('Number of reading items'); ?></h4>
+    <div class="value">
+    <?php echo json_encode($new['reading_items']); ?>
+    </div>
+</div>
+
+<div class="property">
+    <h4><?php echo $translate('Number of downloaded items'); ?></h4>
+    <div class="value">
+        <?php echo json_encode($new['downloaded_items']); ?>
+    </div>
+</div>
+<div class="property">
+    <h4><?php echo $translate('Most readed item'); ?></h4>
+    <div class="value">
+    <?php echo json_encode($new['most_readed_item']); ?>
+    </div>
+</div>
+
+<div class="property">
+    <h4><?php echo $translate('Most readed user'); ?></h4>
+    <div class="value">
+        <?php echo json_encode($new['most_readed_user_name']); ?>
+        <?php echo json_encode($new['most_readed_user_email']); ?>
+    </div>
+</div>
+
+<?php $this->trigger('view.show.after'); ?>

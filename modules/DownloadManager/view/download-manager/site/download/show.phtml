@@ -1,0 +1,31 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'item resource show document-view');
+$primaryMedia = $item->primaryMedia();
+// Manage the module External if enabled.
+$hasMedia = $primaryMedia && $this->primaryOriginal($resource, false);
+?>
+<?php echo $this->pageTitle($item->displayTitle(), 2); ?>
+<?php if ($values = $item->value('dcterms:creator', ['all' => true])): ?>
+<?php $values= array_map(function ($v) { return $v->asHtml(); }, $values); ?>
+<p><?php echo sprintf($translate('by %s'), implode(', ', $values)); ?></p>
+<?php endif; ?>
+<?php $this->trigger('view.show.before'); ?>
+<?php if ($hasMedia): ?>
+<?php // Render only the first media. ?>
+<?php echo $item->primaryMedia()->render(); ?>
+<?php // foreach ($item->media() as $media): ?>
+<?php // echo $media->render(); ?>
+<?php // endforeach; ?>
+<?php else: ?>
+<p>
+<?php echo $translate('This item has no file.'); ?>
+</p>
+<?php endif; ?>
+<p>
+<?php echo $this->hyperlink(
+    $translate('Go back to item page.'),
+    $this->url('site/resource-id', ['site-slug' => $site->slug(), 'controller' => 'item', 'id' => $item->id()])); ?>
+</p>
+<?php $this->trigger('view.show.after'); ?>

@@ -1,0 +1,21 @@
+<?php
+$mediaQualities = $this->mediaQualities($resource);
+?>
+<?php if ($mediaQualities): ?>
+<div class="meta-group">
+    <h4><?php echo $this->escapeHtml($this->translate('Media quality')); ?></h4>
+    <div class="value">
+    <?php foreach ($mediaQualities as $mediaQuality): ?>
+        <div>
+        <?php echo sprintf('%s (%s)',
+            $this->hyperlink(
+                $this->translate($mediaQuality['quality']),
+                $mediaQuality['url']
+            ),
+            $this->formatDigitalUnits($mediaQuality['filesize'])
+        ); ?>
+        </div>
+    <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>

@@ -1,0 +1,15 @@
+<?php
+namespace Omeka\Form\Element;
+
+class UserSelect extends AbstractGroupByOwnerSelect
+{
+    public function getResourceName()
+    {
+        return 'users';
+    }
+
+    public function getValueLabel($resource)
+    {
+        return sprintf('%s (%s)', $resource->email(), $resource->name());
+    }
+}

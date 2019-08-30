@@ -1,0 +1,36 @@
+{
+    "name": "daniel-km/omeka-s-module-maintenance",
+    "description": "Maintenance (module for Omeka S)",
+    "type": "library",
+    "license": "CECILL-2.1",
+    "authors": [
+        {
+            "name": "Daniel Berthereau",
+            "email": "Daniel.packagist@Berthereau.net"
+        }
+    ],
+    "homepage": "https://github.com/Daniel-KM/Omeka-S-module-Maintenance",
+    "support": {
+        "issues": "https://github.com/Daniel-KM/Omeka-S-module-Maintenance/issues",
+        "forum": "https://forum.omeka.org/"
+    },
+    "keywords": [
+        "Omeka S",
+        "Omeka S module",
+        "maintenance",
+        "admin"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Maintenance\\": "src/"
+        }
+    },
+    "require-dev": {
+        "biblibre/omeka-s-test-helper": "dev-master"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MaintenanceTest\\": "test/MaintenanceTest/"
+        }
+    }
+}

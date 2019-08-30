@@ -1,0 +1,93 @@
+<?php
+// The arg "query" that may limit the references is available too.
+
+if (count($references)):
+    $this->headLink()->appendStylesheet($this->assetUrl('vendor/jquery-simplefolders/main.css', 'Reference'));
+    $this->headScript()->appendFile($this->assetUrl('vendor/jquery-simplefolders/main.js', 'Reference'));
+
+    $this->headStyle()->appendStyle('.tree .no-resource { font-style: italic; }');
+
+    $termId = $term;
+    $mapResourcesControllers = ['resources' => 'resource', 'items' => 'item', 'item_sets' => 'item-set', 'media' => 'media'];
+    $controllerName = $mapResourcesControllers[$resourceName];
+
+    // Set default values if needed.
+    $options += ['query_type' => 'eq', 'link_to_single' => true, 'total' => true, 'raw' => false, 'expanded' => true];
+    $queryType = $options['query_type'];
+    $linkToSingle = $options['link_to_single'];
+    $total = $options['total'];
+    $raw = $options['raw'];
+    $isBranch = $options['branch'];
+    $expanded = $options['expanded'];
+?>
+<div id="reference-headings">
+    <ul class="tree">
+        <?php
+            // Create the tree.
+            $previous_level = null;
+            foreach ($references as $referenceData):
+                $reference = $referenceData['value'];
+                $level = $referenceData['level'];
+
+                // Close the previous line (done before, because next line is
+                // not known yet).
+                if (is_null($previous_level)):
+                    // Nothing for the first value (first level).
+                    $previous_level = 0;
+                // Deeper level is always the next one.
+                elseif ($level > $previous_level):
+                    // Nothing to do.
+                // Higher level.
+                elseif ($level < $previous_level):
+                    echo '</li>' . PHP_EOL . str_repeat('</ul></li>' . PHP_EOL, $previous_level - $level);
+                // First line, deeper or equal level.
+                else:
+                    echo '</li>' . PHP_EOL;
+                endif;
+
+                // Start the line with or without a new sub-list.
+                if ($level > $previous_level):
+                    // Deeper level is always the next one.
+                    echo PHP_EOL . '<div class="expander' . ($expanded ? ' expanded' : '') . '"></div>';
+                    echo '<ul' . ($expanded ? ' class="expanded"' : '') . '><li>';
+                else:
+                    echo '<li>';
+                endif;
+
+                if ($raw):
+                    $referenceText = $reference;
+                    $referenceNumber = true;
+                else:
+                    if (empty($referenceData['total'])):
+                        $referenceText = '<span class="no-resource">' . $reference . '</span>';
+                        $referenceNumber = false;
+                    elseif ($linkToSingle && $referenceData['total'] === 1):
+                        $resource = $this->api()->read($resourceName, $referenceData['first_id'])->getContent();
+                        $referenceText = $this->hyperlink($reference, $resource->siteUrl());
+                        $referenceNumber = false;
+                    else:
+                        $query = [
+                            'property' => [['property' => $termId, 'type' => $queryType, 'text' => $isBranch ? $referenceData['branch']: $reference]],
+                        ];
+                        $referenceText = $this->hyperlink(
+                            $reference,
+                            $this->url('site/resource', ['controller' => $controllerName, 'action' => 'browse'], ['query' => $query], true)
+                        );
+                        $referenceNumber = true;
+                    endif;
+                endif;
+
+                echo $referenceText;
+                if ($total && $referenceNumber && @$referenceData['total']):
+                    echo ' (' . $referenceData['total'] . ')';
+                endif;
+
+                $previous_level = $level;
+            endforeach;
+
+            // Manage last line.
+            echo '</li>' . PHP_EOL . str_repeat('</ul></li>' . PHP_EOL, $previous_level);
+        ?>
+    </ul>
+</div>
+<?php endif;

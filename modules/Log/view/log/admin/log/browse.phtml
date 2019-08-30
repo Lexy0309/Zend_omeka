@@ -1,0 +1,248 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Log\Api\Representation\LogRepresentation[] $logs
+ * @var \Log\Api\Representation\LogRepresentation[] $resources
+ * @var \Log\Form\SearchForm $formSearch
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'logs browse');
+$userIsAllowedBatchDelete = $this->userIsAllowed(\Log\Api\Adapter\LogAdapter::class, 'batch_delete');
+$this->headLink()->appendStylesheet($this->assetUrl('vendor/webui-popover/jquery.webui-popover.min.css', 'Log'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/log.css', 'Log'));
+$this->headScript()->appendFile($this->assetUrl('vendor/webui-popover/jquery.webui-popover.min.js', 'Log'));
+$this->headScript()->appendFile($this->assetUrl('js/log.js', 'Log'));
+$sortHeadings = [
+    [
+        'label' => $translate('Created'),
+        'value' => 'created'
+    ],
+    [
+        'label' => $translate('Reference'),
+        'value' => 'reference'
+    ],
+    [
+        'label' => $translate('Severity'),
+        'value' => 'severity'
+    ],
+    [
+        'label' => $translate('Job'),
+        'value' => 'job'
+    ],
+    [
+        'label' => $translate('User'),
+        'value' => 'owner'
+    ],
+];
+?>
+
+<?php echo $this->pageTitle($translate('Logs')); ?>
+
+<?php echo $this->logSearchFilters(); ?>
+
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+    <?php // echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']); ?>
+    <?php echo $this->hyperlink($translate('Search'), '#', ['class' => 'search advanced-search']); ?>
+    <?php echo $this->sortSelector($sortHeadings); ?>
+</div>
+
+<div id="page-actions">
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+<?php if (count($logs)): ?>
+<form method='post' id="batch-form" class="disable-unsaved-warning">
+    <div class="batch-inputs">
+        <select class="batch-actions-select" name="batch_action" aria-label="<?php echo $translate('Batch actions'); ?>">
+            <option value="default"><?php echo $translate('Batch actions'); ?></option>
+            <?php if ($userIsAllowedBatchDelete): ?>
+            <option value="delete-selected" class="batch-selected" disabled="disabled"><?php echo $translate('Delete selected'); ?></option>
+            <option value="delete-all"><?php echo $translate('Delete all'); ?></option>
+            <?php endif; ?>
+        </select>
+        <div class="batch-actions">
+            <button type="button" class="default active" disabled="disabled"><?php echo $translate('Go'); ?></button>
+            <input type="hidden" name="query" class="batch-query" value="<?php echo $escape(json_encode($this->params()->fromQuery())); ?>">
+            <?php if ($userIsAllowedBatchDelete): ?>
+            <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?php echo $translate('Go'); ?></a>
+            <a class="delete button sidebar-content delete-all" data-sidebar-selector="#sidebar-delete-all"><?php echo $translate('Go'); ?></a>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
+        <thead>
+            <tr>
+                <th>
+                <?php if ($userIsAllowedBatchDelete): ?>
+                <input type="checkbox" class="select-all">
+                <?php endif; ?>
+                <?php echo $escape($translate('Message'));?>
+                </th>
+                <th><?php echo $this->sortLink($translate('Date'), 'created');?></th>
+                <th><?php echo $this->sortLink($translate('Severity'), 'severity');?></th>
+                <th><?php echo $this->sortLink($translate('Reference'), 'reference');?></th>
+                <?php /*
+                <th><?php echo $this->sortLink($translate('User'), 'owner');?></th>
+                */ ?>
+                <th><?php echo $this->sortLink($translate('Job'), 'job');?></th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($logs as $log): ?>
+        <?php $ownerIsAllowedDelete = $log->userIsAllowed('delete'); ?>
+        <tr>
+            <td class="webui-popover-parent">
+                <?php if ($userIsAllowedBatchDelete): ?>
+                <input type="checkbox" name="resource_ids[]" value="<?php echo $log->id(); ?>"<?php if (!$ownerIsAllowedDelete): ?> disabled="disabled"<?php endif; ?>>
+                <?php endif; ?>
+                <div class="log-message">
+                <?php $text = $log->message(); ?>
+                <?php $isLong = strlen($text) > 240; ?>
+                <?php if ($isLong): ?>
+                <div class="log-message-truncated truncate"><?php echo nl2br($escape(substr($text, 0, 240))) . '…'; ?></div>
+                <?php else: ?>
+                <?php echo nl2br($escape($text)); ?>
+                <?php endif; ?>
+                </div>
+                <ul class="actions">
+                    <?php if ($isLong): ?>
+                    <li><?php echo $this->hyperlink('', '#', [
+                        'class' => 'o-icon- fa fa-expand popover',
+                        'title' => $translate('Full log'),
+                    ]); ?>
+                    <div class="log-message-full webui-popover-content webui-popover-current"><?php echo nl2br($escape($text)); ?></div>
+                    </li>
+                    <?php endif; ?>
+                    <?php if ($ownerIsAllowedDelete): ?>
+                    <li><?php echo $this->hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $log->url('delete-confirm'),
+                        'class' => 'o-icon-delete sidebar-content',
+                        'title' => $translate('Delete'),
+                    ]); ?></li>
+                    <?php endif; ?>
+                    <li><?php echo $this->hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $log->url('show-details'),
+                        'class' => 'o-icon-more sidebar-content',
+                        'title' => $translate('Details'),
+                    ]); ?></li>
+                </ul>
+            </td>
+            <td><?php echo $log->created()->format('Y-m-d H:i:s'); ?></td>
+            <td><?php echo $this->hyperlink($translate($log->severityLabel()), $this->url(null, [], ['query' => ['severity' => $log->severity()]], true)); ?></td>
+            <td><?php echo $this->hyperlink($translate($log->reference()), $this->url(null, [], ['query' => ['reference' => $log->reference()]], true)); ?></td>
+            <?php /*
+            if ($owner = $log->owner()) {
+                $ownerText = $this->hyperlink($owner->email(), $this->url(
+                    'admin/id',
+                    ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]
+                ));
+            } else {
+                $ownerText = '';
+            }
+            ?>
+            <td><?php echo $ownerText; ?></td>
+            */ ?>
+            <td>
+            <?php $job = $log->job(); ?>
+            <?php if ($job): ?>
+                <span class="log-job-status">
+                <?php echo $this->hyperlink($translate($job->statusLabel()), $this->url(null, [], ['query' => ['job_id' => $job->id()]], true)); ?>
+                </span>
+                -
+                <span class="log-job-param">
+                <?php echo $this->hyperlink($translate('Parameters'), $this->url('admin/id', ['controller' => 'job', 'action' => 'show', 'id' => $job->id()])); ?>
+                </span>
+                <?php if ($job->log()): ?>
+                /
+                <span class="log-job-log">
+                <?php  echo $this->hyperlink($translate('Log'), $this->url('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->id()]), ['target' => '_blank']); ?>
+                </span>
+                <?php endif; ?>
+            <?php endif; ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</form>
+
+<?php $this->trigger('view.browse.after'); ?>
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <?php echo $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]); ?>
+    <div class="sidebar-content"></div>
+</div>
+
+<?php if ($userIsAllowedBatchDelete): ?>
+<div id="sidebar-delete-selected" class="sidebar">
+    <?php echo $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]); ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?php echo $translate('Delete logs'); ?></h3>
+            <p><?php echo $translate('Are you sure you would like to delete the selected logs?'); ?></p>
+            <p class="error"><?php echo sprintf(
+                $translate('%s: this action will permanently delete %s logs and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                '<strong><span id="delete-selected-count"></span></strong>'
+            ); ?></p>
+            <?php echo $this->form($this->formDeleteSelected); ?>
+        </div>
+    </div>
+</div>
+<div id="sidebar-delete-all" class="sidebar">
+    <?php echo $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]); ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?php echo $translate('Delete logs'); ?></h3>
+            <p><?php echo $translate('Are you sure you would like to delete all logs on all logs of this result?'); ?></p>
+            <p class="error"><?php echo sprintf(
+                $translate('%s: this action will permanently delete %s logs and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                sprintf('<strong>%s</strong>', number_format($this->pagination()->getPaginator()->getTotalCount()))
+            ); ?></p>
+            <label><input type="checkbox" name="confirm-delete-all-check"> <?php echo $translate('Are you sure?'); ?></label>
+            <?php echo $this->form($this->formDeleteAll); ?>
+        </div>
+    </div>
+</div>
+
+<?php endif; ?>
+
+<?php else: ?>
+
+<div class="no-resources">
+    <p><?php echo $translate('Omeka could not find any logs, or they are saved in another place.'); ?></p>
+</div>
+
+<?php endif; ?>
+
+<div id="sidebar-search" class="sidebar search">
+    <?php echo $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]); ?>
+    <div class="sidebar-content">
+        <div id="sidebar-search-form" class="disable-unsaved-warning">
+            <h3><?php echo $translate('Search logs'); ?></h3>
+            <?php echo $this->form($formSearch); ?>
+        </div>
+    </div>
+</div>

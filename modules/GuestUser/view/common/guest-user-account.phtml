@@ -1,0 +1,19 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ */
+
+$translate = $this->plugin('translate');
+$urlHelper = $this->plugin('url');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+?>
+<ul>
+    <li>
+        <?php $url = $urlHelper('site/guest-user', ['action' => 'update-account'], [], true); ?>
+        <a href="<?php echo $escapeAttr($url); ?>"><?php echo $translate('Update account info and password'); ?></a>
+    </li>
+    <li>
+        <?php $url = $urlHelper('site/guest-user', ['action' => 'update-email'], [], true); ?>
+        <a href="<?php echo $escapeAttr($url); ?>"><?php echo $translate('Update email'); ?></a>
+    </li>
+</ul>

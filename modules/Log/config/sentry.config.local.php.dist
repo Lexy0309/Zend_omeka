@@ -1,0 +1,29 @@
+<?php
+// https://github.com/facile-it/sentry-module#client
+return [
+    'facile' => [
+        'sentry' => [
+            'dsn' => '', // Sentry Raven dsn
+            'raven_options' => [ // Sentry Raven options
+                // 'app_path' => '',
+                // 'release' => 'release-hash',
+                // ....
+            ],
+            'raven_javascript_dsn' => '', // javascript sentry dsn
+            'raven_javascript_uri' => 'https://cdn.ravenjs.com/3.16.0/raven.min.js',
+            'raven_javascript_options' => [], // javascript sentry options
+            'inject_raven_javascript' => false, // should we inject sentry JS file and script?
+            'error_handler_options' => [ // Error Handler Listener options (read below)
+                'error_types' => null, // Error types to log, NULL will get value from error_reporting() function
+                'skip_exceptions' => [], // Exception class names to skip when loggin exceptions
+            ],
+            'stack_trace_options' => [
+                // We clean the backtrace when loggin messages removing last stacks from our library.
+                // You can add more namespaces to ignore when using some other
+                // libraries between the real log line and our library.
+                // "Facile\SentryModule" is already present in module's configuration.
+                'ignore_backtrace_namespaces' => [],
+            ],
+        ],
+    ],
+];

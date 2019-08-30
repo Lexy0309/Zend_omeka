@@ -1,0 +1,23 @@
+<?php
+$translate = $this->plugin('translate');
+?>
+<div id="site-data" class="mapping-group">
+    <a href="#" class="expand" aria-label="Expand">
+        <h4><?php echo $translate('Sites'); ?></h4>
+    </a>
+    <div class="collapsible">
+        <select data-flag-class="site-data" data-flag-unique="1" data-flag-label="<?php echo $translate('Site'); ?>">
+            <option value="default"><?php echo $translate('Select below'); ?></option>
+            <option value="o:title" data-flag-name="column-site"><?php echo $translate('Title'); ?></option>
+            <option value="o:slug" data-flag-name="column-site"><?php echo $translate('Slug'); ?></option>
+            <option value="o:theme" data-flag-name="column-site"><?php echo $translate('Theme'); ?></option>
+            <!--
+            <option value="owner" data-flag-name="column-site"><?php echo $translate('Owner'); ?></option>
+            -->
+            <option value="o:is_public" data-flag-name="column-site"><?php echo $translate('Is public'); ?></option>
+            <!--
+            <option value="o:item_set" data-flag-name="column-site"><?php echo $translate('Item sets'); ?></option>
+            -->
+        </select>
+    </div>
+</div>

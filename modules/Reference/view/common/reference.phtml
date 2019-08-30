@@ -1,0 +1,104 @@
+<?php
+// The arg "query" that may limit the references is available too.
+
+if (count($references)):
+    $this->headLink()->prependStylesheet($this->assetUrl('css/reference.css', 'Reference'));
+
+    $termId = $term;
+    $mapResourcesControllers = ['resources' => 'resource', 'items' => 'item', 'item_sets' => 'item-set', 'media' => 'media'];
+    $controllerName = $mapResourcesControllers[$resourceName];
+
+    // Set default values if needed.
+    $options += ['link_to_single' => true, 'total' => true, 'raw' => false, 'skiplinks' => true, 'headings' => true];
+    $linkToSingle = $options['link_to_single'];
+    $total = $options['total'];
+    $raw = $options['raw'];
+    $skipLinks = $options['skiplinks'];
+    $headings = $options['headings'];
+    $hasInitial = array_key_exists('initial', $references[key($references)]);
+
+    // Prepare and display skip links.
+    if ($skipLinks):
+        $paginationList = $this->partial('common/reference-skiplinks', ['references' => $references]);
+    ?>
+<div class="pagination reference-pagination pagination-top">
+    <?php echo $paginationList; ?>
+</div>
+    <?php endif; ?>
+<div id="reference-headings">
+    <?php
+    $current_heading = '';
+    $current_id = '';
+    foreach ($references as $reference => $referenceData):
+        $emptyReferenceValue = is_null($referenceData['value']);
+        $referenceValue = $emptyReferenceValue ? '[Untitled]' : $referenceData['value'];
+
+        // Add the first character as header if wanted.
+        if ($headings):
+            if ($hasInitial) {
+                $first_char = $referenceData['initial'];
+            } elseif (extension_loaded('mbstring')) {
+                $first_char =  mb_strtoupper(mb_substr($reference, 0, 1));
+            } else {
+                $first_char = substr($reference, 0, 1);
+                if (strlen($first_char) == 0) {
+                    $first_char = '#0-9';
+                }
+            }
+            if (preg_match('/\W|\d/u', $first_char)) {
+                $first_char = '#0-9';
+            }
+            $current_first_char = $first_char;
+            if ($current_heading !== $current_first_char):
+                $current_heading = $current_first_char;
+                $current_id = $current_heading === '#0-9' ? 'number' : $current_heading;
+            ?>
+    <h3 class="reference-heading" id="<?php echo $current_id; ?>"><?php echo $current_heading; ?></h3>
+            <?php
+            endif;
+        endif;
+
+        if ($raw):
+            $referenceText = $reference;
+            $referenceNumber = true;
+        else:
+            if ($linkToSingle && $referenceData['total'] === 1):
+                $resource = $this->api()->read($resourceName, $referenceData['first_id'])->getContent();
+                $referenceText = $this->hyperlink($referenceValue, $resource->siteUrl());
+                $referenceNumber = false;
+            else:
+                if ($type === 'resource_classes'):
+                    $query = [];
+                    $query['resource_class_id'] = $termId;
+                    $query['property'] = $emptyReferenceValue
+                        ? [['property' => 1 /* dcterms:title */, 'type' => 'nex']]
+                        : [['property' => 1 /* dcterms:title */, 'type' => 'eq', 'text' => $reference]];
+                else:
+                    $query = [
+                        'property' => [['property' => $termId, 'type' => 'eq', 'text' => $reference]],
+                    ];
+                endif;
+                $referenceText = $this->hyperlink(
+                    $referenceValue,
+                    $this->url('site/resource', ['controller' => $controllerName, 'action' => 'browse'], ['query' => $query], true)
+                );
+                $referenceNumber = true;
+            endif;
+        endif;
+        ?>
+    <div class="reference-record">
+        <?php echo $referenceText; ?>
+        <?php // Can be null when references are set directly.
+            if ($total && $referenceNumber && @$referenceData['total']):
+                echo ' (' . $referenceData['total'] . ')';
+            endif;
+        ?>
+    </div>
+    <?php endforeach; ?>
+</div>
+    <?php if ($skipLinks): ?>
+<div class="pagination reference-pagination pagination-bottom">
+    <?php echo $paginationList; ?>
+</div>
+    <?php endif;
+endif;

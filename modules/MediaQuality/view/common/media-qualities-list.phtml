@@ -1,0 +1,27 @@
+<?php
+$listMediaQualities = $this->mediaQualities($resource);
+?>
+<?php if ($listMediaQualities): ?>
+<div class="meta-group media-quality">
+    <h4><?php echo $this->escapeHtml($this->translate('Media quality')); ?></h4>
+    <?php foreach ($listMediaQualities as $mediaQualities): ?>
+    <ul>
+        <li><?php echo $this->escapeHtml($mediaQualities['media']->displayTitle()); ?>
+            <ul class="value">
+            <?php foreach ($mediaQualities['qualities'] as $mediaQuality): ?>
+                <li>
+                <?php echo sprintf('%s (%s)',
+                    $this->hyperlink(
+                        $this->translate($mediaQuality['quality']),
+                        $mediaQuality['url']
+                    ),
+                    $this->formatDigitalUnits($mediaQuality['filesize'])
+                ); ?>
+                </li>
+            <?php endforeach; ?>
+            </ul>
+        </li>
+    </ul>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>

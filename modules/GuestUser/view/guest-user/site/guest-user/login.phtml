@@ -1,0 +1,18 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Form\LoginForm $form
+ */
+
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'guest-user login');
+?>
+<h1><?php echo $translate('Login'); ?></h1>
+<?php echo $this->messages(); ?>
+<?php if (empty($form)): ?>
+<p><?php echo $translate('Your account seems to have an error. Contact your administrator to login.')?></p>
+<?php else: ?>
+<?php echo $this->form($form); ?>
+<?php endif; ?>
+<p class="forgot-password"><?php echo $this->hyperlink($translate('Forgot password?'), $this->url('site/guest-user', ['action' =>'forgot-password'], true)); ?></p>
+<?php $this->trigger('view.login.after'); ?>

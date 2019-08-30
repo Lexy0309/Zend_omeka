@@ -1,0 +1,30 @@
+{
+  "name": "omeka-s-module-ebsco",
+  "version": "3.0.0",
+  "description": "Ebsco (module for Omeka S)",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Daniel-KM/Omeka-S-module-Ebsco"
+  },
+  "author": "Daniel Berthereau",
+  "license": "CECILL-2.1",
+  "bugs": {
+    "url": "https://github.com/Daniel-KM/Omeka-S-module-Ebsco/issues"
+  },
+  "homepage": "https://github.com/Daniel-KM/Omeka-S-module-Ebsco#readme",
+  "keywords": [
+    "Omeka S",
+    "Omeka S module",
+    "viewer",
+    "pdf",
+    "book",
+    "ebook",
+    "epub"
+  ]
+}

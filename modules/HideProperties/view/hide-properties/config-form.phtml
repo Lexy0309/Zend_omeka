@@ -1,0 +1,12 @@
+<?php
+$translate = $this->plugin('translate');
+?>
+<?php echo $this->headScript()->appendFile($this->assetUrl('js/hide-properties.js', 'HideProperties')); ?>
+<?php echo $this->headLink()->appendStylesheet($this->assetUrl('css/hide-properties.css', 'HideProperties')); ?>
+<p><?php echo $translate('Properties selected here will be hidden from display on all resources. Add properties from the sidebar to the right.'); ?>
+</p>
+<div id="hide-properties-list" data-hidden-properties="<?php echo $this->escapeHtml(json_encode($this->hiddenProperties)); ?>">
+</div>
+<input type="hidden" name="ignore">
+
+<?php echo $this->propertySelector(); ?>

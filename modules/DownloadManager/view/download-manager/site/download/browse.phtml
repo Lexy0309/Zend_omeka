@@ -1,0 +1,115 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$this->htmlElement('body')->appendAttribute('class', 'access browse');
+$sortHeadings = [
+    [
+        'label' => $translate('Resource'),
+        'value' => 'dcterms:title'
+    ],
+    /*
+    [
+        'label' => $translate('Status'),
+        'value' => 'status'
+    ],
+    [
+        'label' => $translate('Total'),
+        'value' => 'total'
+    ],
+    */
+];
+?>
+
+<?php
+$isPast = $this->params()->fromQuery('status') ===  \DownloadManager\Entity\Download::STATUS_PAST;
+echo $isPast
+    ? $this->pageTitle($translate('My past readings'))
+    : $this->pageTitle($translate('My readings'));
+?>
+
+<?php // echo $this->searchFilters(); ?>
+
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+    <?php // echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']); ?>
+    <?php // echo $this->sortSelector($sortHeadings); ?>
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+<?php if ($downloads): ?>
+<table class="table">
+    <thead>
+        <tr>
+            <th><?php echo $translate('Book'); ?></th>
+            <th><?php echo $translate('Status'); ?></th>
+            <th><?php echo $translate('Expiration'); ?></th>
+            <th><?php echo $translate('Action'); ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($downloads as $download): ?>
+        <?php
+        $resource = $download->resource();
+        $isExpiring = $download->isExpiring();
+        ?>
+        <tr>
+            <td>
+                <?php echo $resource ? $resource->linkPretty() : $translate('[Unknown]'); ?>
+            </td>
+            <td><?php
+            if ($download->isPast() && $downloadLog = $download->log()):
+                $lastLog = end($downloadLog);
+                echo $escape(sprintf($translate('Past (%s on %s)'), $lastLog['action'], $lastLog['date']));
+            else:
+                echo $escape($translate($download->status()));
+            endif;
+            ?></td>
+            <td><?php echo $download->expire() ? $escape($this->i18n()->dateFormat($download->expire())) : ''; ?></td>
+            <td><?php
+            if ($resource):
+                echo $this->showAvailability($resource);
+            /*
+                switch ($download->status()):
+                    case \DownloadManager\Entity\Download::STATUS_HELD:
+                        $isDownloadable = $this->checkResourceToDownload($resource)
+                            && $this->checkRightToDownload($resource)
+                            && $this->totalAvailable($resource) !== 0;
+                        if ($isDownloadable) {
+                            echo $this->hyperlink(
+                                $translate('Download'),
+                                $this->url('site/download-id', ['action' => 'show', 'id' => $resource->id(), 'site-slug' => $this->params()->fromRoute('site-slug')])
+                            );
+                        } else {
+                            echo $this->hyperlink(
+                                $translate('Cancel'),
+                                $this->url('site/download-id', ['action' => 'hold', 'id' => $resource->id(), 'site-slug' => $this->params()->fromRoute('site-slug')])
+                            );
+                        }
+                        break;
+                    case \DownloadManager\Entity\Download::STATUS_DOWNLOADED:
+                        echo $this->hyperlink(
+                            $translate('Release'),
+                            $this->url('site/download-id', ['action' => 'release', 'id' => $resource->id(), 'site-slug' => $this->params()->fromRoute('site-slug')])
+                        );
+                        break;
+                endswitch;
+                */
+            endif;
+            ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<?php $this->trigger('view.browse.after'); ?>
+<div class="browse-controls">
+    <?php echo $this->pagination(); ?>
+</div>
+
+<?php else: ?>
+
+<div class="no-resources">
+    <p><?php echo $translate('You don’t have any readings.'); ?></p>
+</div>
+
+<?php endif; ?>

@@ -1,0 +1,19 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ */
+
+$this->htmlElement('body')->appendAttribute('class', 'guest-user account');
+
+$pageTitle =  $this->setting('guestuser_dashboard_label');
+echo $this->pageTitle($pageTitle);
+?>
+<?php echo $this->messages(); ?>
+
+<h1><?php $this->pageTitle($pageTitle); ?></h1>
+
+<?php foreach ($this->widgets as $widget): ?>
+<div class="guest-user-widget">
+<?php echo $this->guestUserWidget($widget); ?>
+</div>
+<?php endforeach; ?>

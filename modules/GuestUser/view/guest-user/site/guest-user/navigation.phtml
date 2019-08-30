@@ -1,0 +1,11 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ */
+
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'guest-user login');
+?>
+<h1><?php echo $translate('Login'); ?></h1>
+
+<p class="forgot-password"><?php echo $this->hyperlink($translate('Forgot password?'), $this->url('site/guest-user', ['action' =>'forgot-password'], true)); ?></p>

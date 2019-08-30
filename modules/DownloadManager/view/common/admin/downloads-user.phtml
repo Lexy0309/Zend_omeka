@@ -1,0 +1,41 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+?>
+<style>
+.download-user .download-expiration {
+    font-size: small;
+    font-style: italic;
+}
+</style>
+<div class="meta-group download-user">
+    <h4><?php echo $translate('Holdings and downloads'); ?></h4>
+<?php if ($downloads): ?>
+    <?php foreach ($downloads as $download): ?>
+    <?php $resource = $download->resource(); ?>
+    <div class="value download">
+        <?php if ($download->isHeld()): ?>
+        <span class="download-status download-<?php echo $download->status(); ?> fa fa-fw fa-hand-o-up" title="<?php echo $translate('Held')?>"></span>
+        <?php elseif ($download->isDownloaded()): ?>
+        <span class="download-status download-<?php echo $download->status(); ?> fa fa-fw fa-download" title="<?php echo $translate('Downloaded')?>"></span>
+        <?php elseif ($download->isPast()): ?>
+        <span class="download-status download-<?php echo $download->status(); ?> fa fa-fw fa-clock-o" title="<?php echo $translate('Past downloaded')?>"></span>
+        <?php else: ?>
+        <?php // Nothing. ?>
+        <?php endif; ?>
+        <?php echo $resource->link($resource->displayTitle()); ?>
+        <?php if ($download->isDownloaded()): ?>
+        <span class="download-expiration <?php echo $download->isExpiring() ? 'expired' : ''; ?>">
+        [<?php echo $escape($this->i18n()->dateFormat($download->expire())); ?>]
+        </span>
+        <?php elseif ($download->isHeld()): ?>
+        <?php echo sprintf(' (#%d)', $download->holdingRank()); ?>
+        <?php endif; ?>
+    </div>
+    <?php endforeach; ?>
+<?php else: ?>
+    <div class="value no-value">
+        <?php echo $escape($translate('No holding or download.')); ?>
+    </div>
+<?php endif; ?>
+</div>

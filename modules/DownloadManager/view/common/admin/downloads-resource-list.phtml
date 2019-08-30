@@ -1,0 +1,55 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+?>
+<style>
+.download-resource .download-stats {
+    list-style-type: none;
+    padding-left: 0;
+}
+</style>
+<div id="download-manager" class="section">
+<div class="property download-resource">
+    <h4><?php echo $translate('Holdings and downloads'); ?></h4>
+    <div class="value">
+    <ul class="download-stats">
+        <li class="value download">
+        <?php echo $escape(sprintf($translate('Exemplars: %s'), $stats['exemplars'] == -1 ? $translate('unlimited') : $stats['exemplars'])); ?>
+        </li>
+        <li class="value download">
+        <?php echo $escape(sprintf($translate('Downloaded: %s'), $stats['downloaded'])); ?>
+        </li>
+        <li class="value download">
+        <?php echo $escape(sprintf($translate('Holdings: %s'), $stats['holdings'])); ?>
+        </li>
+        <li class="value download">
+        <?php echo $escape(sprintf($translate('Available: %s'),
+            $stats['available'] === -1 ? $translate('unlimited') : $stats['available']
+        )); ?>
+        </li>
+        <li class="value download">
+            <?php echo $escape(sprintf($translate('Past downloaded: %s'), $stats['past-downloaded'])); ?>
+        </li>
+    </ul>
+    </div>
+</div>
+<div class="property download-resource">
+    <h4><?php echo $translate('Holding ranks'); ?></h4>
+    <div class="value">
+    <?php if (is_null($holdingRanks)): ?>
+    <?php echo $translate('This item is available.'); ?>
+    <?php elseif (empty($holdingRanks)): ?>
+    <?php echo $translate('Nobody placed a hold on this item.'); ?>
+    <?php else: ?>
+    <?php foreach ($holdingRanks as $key => $download): ?>
+    <?php $owner = $download->getOwner(); ?>
+    <ul class="download-holding-ranks">
+        <li class="value download">
+            <?php echo sprintf('#%d: %s (%s)', $key, $this->hyperlink($owner->getEmail(), $this->url('admin/id' , ['controller' => 'user', 'id' => $owner->getId()])), $owner->getName()); ?>
+        </li>
+    </ul>
+    <?php endforeach; ?>
+    <?php endif; ?>
+    </div>
+</div>
+</div>

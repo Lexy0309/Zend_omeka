@@ -1,0 +1,18 @@
+<?php
+$translate = $this->plugin('translate');
+?>
+<div class="reference-block">
+    <?php if ($options['heading']): ?>
+    <h3><?php echo $translate($options['heading']); ?></h3>
+    <?php endif; ?>
+
+    <?php
+    if ($total):
+        echo $this->reference()->displayTree($tree, $args, $options);
+    else:
+    ?>
+    <p><?php echo $translate('There is no references.'); ?></p>
+    <?php
+    endif;
+    ?>
+</div>

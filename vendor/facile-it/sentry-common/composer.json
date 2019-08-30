@@ -1,0 +1,41 @@
+{
+    "name": "facile-it/sentry-common",
+    "type": "library",
+    "description": "Sentry common library",
+    "homepage": "https://github.com/facile-it/sentry-common",
+    "license": "MIT",
+    "keywords": [
+        "sentry",
+        "raven",
+        "log",
+        "logs"
+    ],
+    "authors": [
+        {
+            "name": "Thomas Vargiu",
+            "email": "thomas.vargiu@facile.it"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Facile\\Sentry\\Common\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Facile\\Sentry\\CommonTest\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^7.0",
+        "sentry/sentry": "^1.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.2",
+        "facile-it/facile-coding-standard": "dev-composer-plugin"
+    },
+    "scripts": {
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix --diff"
+    }
+}
